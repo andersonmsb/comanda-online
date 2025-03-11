@@ -1,47 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector("form"); // Seleciona o formulário
-    const button = form.querySelector('button[type="submit"]'); // Seleciona o botão de envio
-    const spinner = button.querySelector(".spinner-border"); // Seleciona o spinner
+    emailjs.init("service_89aps3i"); // Substitua pelo seu User ID do EmailJS
 
-    form.addEventListener("submit", async function (event) {
-        event.preventDefault(); // Evita que o formulário recarregue a página
+    document.getElementById("contactForm").addEventListener("submit", function (event) {
+        event.preventDefault();
 
-        const formData = new FormData(form);
-        const data = {
-            name: formData.get("name"),
-            email: formData.get("email"),
-            subject: formData.get("subject"),
-            message: formData.get("message"),
+        // Captura os valores do formulário
+        let name = document.getElementById("nameInput").value;
+        let email = document.getElementById("emailInput").value;
+        let subject = document.getElementById("subject-Input").value;
+        let message = document.querySelector("textarea[name='message']").value;
+
+        // Configuração do EmailJS
+        let templateParams = {
+            from_name: name,
+            from_email: email,
+            subject: subject,
+            message: message
         };
 
-        // Exibir o spinner e desativar o botão
-        spinner.classList.remove("d-none");
-        button.setAttribute("disabled", "disabled");
-
-        try {
-            const response = await fetch("/api/v1/mails/contact", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
-                body: JSON.stringify(data),
+        // Enviar o e-mail
+        emailjs.send("service_89aps3i", "template_17zhinr", templateParams)
+            .then(function (response) {
+                console.log("E-mail enviado com sucesso!", response);
+                document.getElementById("responseModal").classList.remove("hidden"); // Mostra modal de sucesso
+                document.getElementById("contactForm").reset(); // Limpa o formulário
+            })
+            .catch(function (error) {
+                console.error("Erro ao enviar o e-mail:", error);
+                alert("Erro ao enviar o e-mail. Tente novamente.");
             });
+    });
 
-            if (!response.ok) {
-                throw new Error("Erro ao enviar o formulário");
-            }
-
-            const result = await response.json();
-            alert("Mensagem enviada com sucesso!");
-
-            form.reset(); // Limpa os campos do formulário
-        } catch (error) {
-            alert("Erro ao enviar a mensagem. Tente novamente.");
-        } finally {
-            // Ocultar spinner e reativar o botão
-            spinner.classList.add("d-none");
-            button.removeAttribute("disabled");
-        }
+    // Fechar modal
+    document.getElementById("close-Modal").addEventListener("click", function () {
+        document.getElementById("responseModal").classList.add("hidden");
     });
 });
