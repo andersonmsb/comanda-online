@@ -1,38 +1,54 @@
-document.addEventListener("DOMContentLoaded", function () {
-    emailjs.init("service_89aps3i"); // Substitua pelo seu User ID do EmailJS
+document.addEventListener('DOMContentLoaded', () => {
+    const contactForm = document.getElementById('contactForm');
+    const submitButton = document.querySelector('button[type="submit"]');
+    const spinner = submitButton.querySelector('.animate-spin');
+    const modal = document.getElementById('modal');
+    const closeModalButton = document.getElementById('closeModal');
 
-    document.getElementById("contactForm").addEventListener("submit", function (event) {
-        event.preventDefault();
+    contactForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Previne o comportamento padrão do formulário
 
-        // Captura os valores do formulário
-        let name = document.getElementById("nameInput").value;
-        let email = document.getElementById("emailInput").value;
-        let subject = document.getElementById("subject-Input").value;
-        let message = document.querySelector("textarea[name='message']").value;
-
-        // Configuração do EmailJS
-        let templateParams = {
-            from_name: name,
-            from_email: email,
-            subject: subject,
-            message: message
+        // Captura os dados do formulário
+        const formData = new FormData(contactForm);
+        const data = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            subject: formData.get('subject'),
+            message: formData.get('message')
         };
 
-        // Enviar o e-mail
-        emailjs.send("service_89aps3i", "template_17zhinr", templateParams)
-            .then(function (response) {
-                console.log("E-mail enviado com sucesso!", response);
-                document.getElementById("responseModal").classList.remove("hidden"); // Mostra modal de sucesso
-                document.getElementById("contactForm").reset(); // Limpa o formulário
-            })
-            .catch(function (error) {
-                console.error("Erro ao enviar o e-mail:", error);
-                alert("Erro ao enviar o e-mail. Tente novamente.");
+        // Exibe o spinner
+        spinner.classList.remove('hidden');
+        button.setAttribute('disabled', 'disabled');
+
+        try {
+            // Envia os dados para a API via fetch
+            const response = await fetch('https://www.comandaon.com.br/api/v1/mails/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
             });
+
+            if (!response.ok) {
+                throw new Error('Falha ao enviar o e-mail');
+            }
+
+            // Exibe o modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Houve um erro ao enviar a mensagem.');
+        } finally {
+            // Esconde o spinner após o envio
+            spinner.classList.add('hidden');
+        }
     });
 
-    // Fechar modal
-    document.getElementById("close-Modal").addEventListener("click", function () {
-        document.getElementById("responseModal").classList.add("hidden");
+    // Fecha o modal ao clicar no botão "Fechar"
+    closeModalButton.addEventListener('click', () => {
+        modal.classList.add('hidden');
     });
 });
