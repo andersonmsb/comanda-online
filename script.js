@@ -17,9 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
             message: formData.get('message')
         };
 
+        // desativar button
+        submitButton.disabled = true;
         // Exibe o spinner
         spinner.classList.remove('hidden');
-        button.setAttribute('disabled', 'disabled');
 
         try {
             // Envia os dados para a API via fetch
